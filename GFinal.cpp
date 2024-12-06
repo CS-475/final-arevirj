@@ -62,7 +62,7 @@ class LinearPosGradient : public GShader {
             srcX = GFloorToInt(srcPix.x);
             srcY = GFloorToInt(srcPix.y);
 
-            out[i] = GPixel_PackARGB(190, 30,60, 70);
+            out[i] = GPixel_PackARGB(200,50,60, 70);
         }
     }
     GPixel color2Pix(GColor& color){
