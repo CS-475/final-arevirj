@@ -27,6 +27,67 @@
  *      [0 0 0 1 0]
  */
 
+
+class LinearPosGradient : public GShader {
+    public:
+        LinearPosGradient(GPoint p0, GPoint p1, const GColor colors[],const float pos[],int count){
+            
+        };
+        bool isOpaque() override {
+    }
+
+    bool setContext(const GMatrix& ctm) override {
+        if (auto inverted = (ctm).invert()) {
+            fInverse = *inverted;
+            return true;
+        }
+        return false;
+    }
+
+    void shadeRow(int x, int y, int count, GPixel out[]) override {
+        GPoint dstPix;
+        GPoint srcPix;
+        int srcX;
+        int srcY;
+        int finX;
+        int finY;
+
+        for (int i = 0; i < count; i++) {
+
+            dstPix.x = x + i + (0.5f);
+            dstPix.y = y + (0.5f);
+
+            srcPix = fInverse * dstPix;
+
+            srcX = GFloorToInt(srcPix.x);
+            srcY = GFloorToInt(srcPix.y);
+
+            out[i] = GPixel_PackARGB(190, 30,60, 70);
+        }
+    }
+    GPixel color2Pix(GColor& color){
+        unsigned int newA = GRoundToInt(color.a * 255);
+    unsigned int newR = GRoundToInt(color.r * color.a * 255);
+    unsigned int newG = GRoundToInt(color.g * color.a * 255);
+    unsigned int newB = GRoundToInt(color.b * color.a * 255);
+
+    return GPixel_PackARGB(newA, newR, newG, newB);
+    }
+
+    private:
+        std::vector<GColor> flatGradient;
+        GMatrix fInverse;
+
+
+
+
+
+
+
+
+
+
+};
 class ColorMatrixShader : public GShader {
     public:
         ColorMatrixShader(GShader* shader, const GColorMatrix& extraTransform)
@@ -153,7 +214,9 @@ class MyFinal : public GFinal{
                                                          const GColor colors[], int count) {
         return std::unique_ptr<GShader>(new SweepGradientShader(center, startRadians, colors, count));
     }
-
+    std::shared_ptr<GShader> createLinearPosGradient(GPoint p0, GPoint p1, const GColor colors[],const float pos[],int count) {
+            return std::unique_ptr<GShader>(new LinearPosGradient(p0, p1, colors, pos, count));
+                                                }
 };
 
 
@@ -163,5 +226,3 @@ class MyFinal : public GFinal{
 std::unique_ptr<GFinal> GCreateFinal(){
     return std::unique_ptr<GFinal>(new MyFinal());
 };
-
-
